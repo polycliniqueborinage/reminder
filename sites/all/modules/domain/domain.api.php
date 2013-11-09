@@ -523,7 +523,7 @@ function hook_domain_ignore() {
  * Bootstrap Process. To register, you must:
  *
  * 1) Implement either or both of the following hooks:
- *  -- hook_domain_bootstrap_load().
+ *  -- hook_domain_bootstrap_loookup().
  *  -- hook_domain_bootstrap_full().
  * 2) Run domain_bootstrap_register() in mymodule_enable().
  * 3) Run domain_bootstrap_unregister('mymodule') in mymodule_disable().
@@ -549,6 +549,9 @@ function hook_domain_bootstrap() {
  * Note: Because this function is usually called VERY early, many Drupal
  * functions or modules won't be loaded yet.
  *
+ * Warning: do _not_ call domain_lookup() or domain_load() from within this
+ * function. Doing so may cause critical errors.
+ *
  * @param $domain
  *   An array containing current domain (host) name (used during bootstrap) and
  *   the results of lookup against {domain} table.
@@ -571,6 +574,9 @@ function hook_domain_bootstrap_lookup($domain) {
  *
  * Note: Because this function is usually called VERY early, many Drupal
  * functions or modules won't be loaded yet.
+ *
+ * Warning: do _not_ call domain_lookup() or domain_load() from within this
+ * function. Doing so may cause critical errors.
  *
  * @param $domain
  *   An array containing current domain and domain_id and any other values
@@ -835,4 +841,27 @@ function hook_domain_reassign($old_domain, $new_domain, $table) {
       ->condition('domain_id', $old_domain['domain_id'])
       ->execute();
   }
+}
+
+/**
+ * Notifies modules that an inactive domain has been requested.
+ *
+ * Modules may choose to allow access to specific paths for purposes such as
+ * login.
+ *
+ * @param $path
+ *   The path requested.
+ * @param $_domain
+ *   The active domain request. Identical to domain_get_domain().
+ * @param $account
+ *   The user account making the request.
+ *
+ * @return
+ *   TRUE if access should be allowed. FALSE in all other cases.
+ */
+function hook_domain_invalid_request($path, $_domain, $account) {
+  if ($path == 'user/login') {
+    return TRUE;
+  }
+  return FALSE;
 }

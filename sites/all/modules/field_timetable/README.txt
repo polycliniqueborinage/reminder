@@ -44,7 +44,7 @@ The following modules are required:
      - Max Time
 
 1. Add the field to a view
-2. Select the 'Office hours' formatter
+2. Select the 'Field Timetable' formatter
 3. Check the formatter settings of the field
 
 
